@@ -34,9 +34,16 @@ def calculation(model, loader):
     
     return preds, keys
 
+# sys can be either 'wBCE' (aDCF loss with BCE) or 'woBCE' (aDCF loss without BCE)  
+
+# sys = 'woBCE' # S2 system in paper (aDCF loss without BCE)
+sys = 'wBCE'  # S3 system in paper (aDCF loss with BCE)
+
+epoch_size = 250
+bs = 1024
 
 trn_set = SASV_Dataset("trn")
-trn_loader = DataLoader(trn_set, batch_size=len(trn_set), shuffle=True, drop_last=False, pin_memory=True)
+trn_loader = DataLoader(trn_set, batch_size=bs, shuffle=True, drop_last=False, pin_memory=True)
 
 dev_set = SASV_Dataset("dev")
 dev_loader = DataLoader(dev_set, batch_size=len(dev_set), shuffle=False, drop_last=False, pin_memory=True)
@@ -50,14 +57,6 @@ optimizer = optim.Adam(params, lr=lr, weight_decay=0.001)
 lr_schedular = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: keras_decay(step))
 adcf_loss = adcf_loss()
 bce_loss = nn.BCELoss()
-
-# sys can be either 'wBCE' (aDCF loss with BCE) or 'woBCE' (aDCF loss without BCE)  
-
-# sys = 'woBCE' # S2 system in paper (aDCF loss without BCE)
-sys = 'wBCE'  # S3 system in paper (aDCF loss with BCE)
-
-epoch_size = 250
-bs = 1024
 
 folder_path = "results/" + str(model.name) + "_" + sys + "_" + str(bs) + "_" + str(epoch_size) + "_" + str(lr)
 if not os.path.exists(folder_path):
